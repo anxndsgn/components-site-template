@@ -1,0 +1,10 @@
+node_modules
+.DS_Store
+.source
+.output
+.vinxi
+dist
+artifacts
+.env
+.env.local
+.tanstack
