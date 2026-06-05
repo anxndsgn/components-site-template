@@ -1,0 +1,23 @@
+---
+title: Introduction
+description: The starting point for your component library docs.
+---
+
+This template keeps component documentation close to installable source. Pages live in `content/docs`, examples live in `registry/default`, and registry output is generated from `registry.json`.
+
+<CodeSnippet>
+  <CodeSnippet.Command value="pnpm">pnpm dev</CodeSnippet.Command>
+  <CodeSnippet.Command value="npm">npm run dev</CodeSnippet.Command>
+  <CodeSnippet.Command value="bun">bun run dev</CodeSnippet.Command>
+</CodeSnippet>
+
+## Workflow
+
+1. Write MDX docs with component previews.
+2. Reference source with Vite raw imports.
+3. Describe public APIs with `PropsTable`.
+4. Run `npm run registry:build` before publishing registry JSON.
+
+```tsx
+import { ComponentTabs, ComponentPreview, ComponentSource } from "@/components/docs";
+```

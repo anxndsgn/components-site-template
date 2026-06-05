@@ -1,0 +1,61 @@
+---
+title: Button
+description: A compact action primitive with variants, sizes, previews, source, commands, and props.
+component: Button
+registry: button
+---
+
+import { ButtonDemo } from "registry/default/examples/button-demo";
+import buttonDemoSource from "registry/default/examples/button-demo.tsx?raw";
+import buttonSource from "registry/default/ui/button.tsx?raw";
+
+## Preview
+
+<ComponentTabs>
+  <ComponentPreview name="button-demo">
+    <ButtonDemo />
+  </ComponentPreview>
+  <ComponentSource code={buttonDemoSource} language="tsx" title="button-demo.tsx" />
+</ComponentTabs>
+
+## Installation
+
+<CodeSnippet>
+  <CodeSnippet.Command value="pnpm">
+    pnpm dlx shadcn@latest add http://localhost:3000/r/button.json
+  </CodeSnippet.Command>
+  <CodeSnippet.Command value="npm">
+    npx shadcn@latest add http://localhost:3000/r/button.json
+  </CodeSnippet.Command>
+  <CodeSnippet.Command value="bun">
+    bunx shadcn@latest add http://localhost:3000/r/button.json
+  </CodeSnippet.Command>
+</CodeSnippet>
+
+## Source
+
+<ComponentSource code={buttonSource} language="tsx" title="button.tsx" />
+
+## Props
+
+<PropsTable
+  rows={[
+    {
+      name: "variant",
+      type: '"default" | "secondary" | "quiet"',
+      default: '"default"',
+      description: "Controls the visual emphasis of the button.",
+    },
+    {
+      name: "size",
+      type: '"sm" | "md" | "lg"',
+      default: '"md"',
+      description: "Changes height, padding, and text size.",
+    },
+    {
+      name: "className",
+      type: "string",
+      description: "Adds custom classes to the rendered button.",
+    },
+  ]}
+/>
