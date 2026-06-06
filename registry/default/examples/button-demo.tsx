@@ -5,7 +5,6 @@ export function ButtonDemo() {
     <div className="flex flex-wrap items-center justify-center gap-3">
       <Button>Install package</Button>
       <Button variant="secondary">View source</Button>
-      <Button variant="quiet">Cancel</Button>
     </div>
   );
 }
