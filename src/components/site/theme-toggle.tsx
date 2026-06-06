@@ -32,7 +32,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      className="relative inline-grid h-10 w-10 flex-none cursor-pointer place-items-center rounded-md border border-border bg-card text-muted-foreground transition-[background-color,border-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground active:scale-[0.96]"
+      className="relative inline-grid size-8 flex-none cursor-pointer place-items-center rounded-md bg-card text-muted-foreground hover:bg-accent"
       aria-label={label}
       aria-pressed={isDark}
       title={label}

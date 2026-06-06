@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Children,
   isValidElement,
@@ -114,25 +112,22 @@ function CodeSnippetRoot({
   return (
     <span
       className={cn(
-        "inline-flex min-h-[42px] max-w-full items-center gap-1.5 rounded-md border border-border bg-muted py-0 pr-1.5 pl-3 text-foreground max-md:w-full max-md:justify-between",
-        hasTabs &&
-          "rounded-lg flex-col items-stretch justify-start gap-1.5 p-1.5 max-md:justify-start",
+        "inline-flex max-w-full items-center gap-1.5 text-foreground max-md:w-full max-md:justify-between",
+        hasTabs && "flex-col items-stretch justify-start gap-1.5 rounded-lg max-md:justify-start",
         className,
       )}
     >
       {hasTabs ? (
-        <span
-          className="inline-flex w-fit max-w-full self-start rounded-[5px] bg-foreground/[0.06] p-0.5"
-          role="group"
-          aria-label="Package manager"
-        >
+        <fieldset className="inline-flex w-fit max-w-full gap-0.5 self-start rounded-md bg-foreground/6 p-0.5">
+          <legend className="sr-only">Package manager</legend>
           {slots.map((slot) => (
             <button
               key={slot.value}
               type="button"
               className={cn(
-                "min-h-8 w-fit cursor-pointer rounded-[4px] border-0 bg-transparent px-2 text-xs font-bold text-foreground/65 transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-foreground/[0.08] hover:text-foreground active:scale-[0.96]",
-                activeValue === slot.value && "bg-background text-foreground shadow-sm",
+                "min-h-8 w-fit cursor-pointer rounded-sm border-0 bg-transparent px-2.5 text-xs font-medium text-foreground/65 hover:text-foreground",
+                activeValue === slot.value &&
+                  "bg-background font-semibold text-foreground shadow-sm",
               )}
               aria-pressed={activeValue === slot.value}
               onClick={() => setSelectedPackageManager(slot.value)}
@@ -140,13 +135,16 @@ function CodeSnippetRoot({
               {slot.value}
             </button>
           ))}
-        </span>
+        </fieldset>
       ) : null}
       <span
-        className={cn("inline-flex min-w-0 flex-1 items-center gap-1.5", hasTabs && "min-h-10")}
+        className={cn(
+          "inline-flex min-w-0 flex-1 items-center gap-1.5 rounded-md bg-muted p-2",
+          hasTabs && "min-h-10",
+        )}
       >
         <code
-          className="min-w-0 flex-1 truncate whitespace-nowrap px-1"
+          className="min-w-0 flex-1 truncate pl-2 whitespace-nowrap"
           dangerouslySetInnerHTML={{ __html: highlightedCommand }}
         />
         <CopyButton value={activeCommand} label="Copy command" size={14} />

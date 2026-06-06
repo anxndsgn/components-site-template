@@ -26,7 +26,7 @@ export function CopyButton({
   return (
     <button
       type="button"
-      className="relative inline-grid h-10 w-10 cursor-pointer place-items-center rounded-md border-0 bg-transparent text-inherit transition-[background-color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-foreground/10 active:scale-[0.96]"
+      className="relative inline-grid size-8 cursor-pointer place-items-center rounded-sm border-0 bg-transparent text-inherit transition-[background-color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-foreground/10"
       aria-label={label}
       onClick={async () => {
         await navigator.clipboard.writeText(value);
@@ -36,7 +36,7 @@ export function CopyButton({
       <Copy
         className={cn(
           "absolute transition-[opacity,filter,scale] duration-200 ease-[cubic-bezier(0.2,0,0,1)]",
-          copied && "scale-[0.25] opacity-0 blur-[4px]",
+          copied && "scale-[0.25] opacity-0 blur-xs",
         )}
         size={size}
         aria-hidden="true"
@@ -44,7 +44,7 @@ export function CopyButton({
       <Check
         className={cn(
           "absolute transition-[opacity,filter,scale] duration-200 ease-[cubic-bezier(0.2,0,0,1)]",
-          !copied && "scale-[0.25] opacity-0 blur-[4px]",
+          !copied && "scale-[0.25] opacity-0 blur-xs",
         )}
         size={size}
         aria-hidden="true"

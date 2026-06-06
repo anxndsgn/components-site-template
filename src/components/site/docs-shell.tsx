@@ -1,5 +1,8 @@
-import type { ReactNode } from "react";
-import { AnchorProvider, TOCItem } from "fumadocs-core/toc";
+import { AnchorProvider, TOCItem, useActiveAnchor } from "fumadocs-core/toc";
+import { ChevronDownIcon, XIcon } from "lucide-react";
+import { useEffect, useId, type ReactNode } from "react";
+
+import { useDocsSidebar } from "./docs-sidebar-context";
 
 export type DocsNavItem = {
   title: string;
@@ -49,12 +52,14 @@ export function DocsShell({
 }) {
   return (
     <AnchorProvider toc={toc} single>
-      <main className="grid min-h-[calc(100vh-64px)] grid-cols-[264px_minmax(0,1fr)] [@media(min-width:1340px)]:grid-cols-[264px_minmax(0,1fr)_240px] max-md:grid-cols-1">
+      <main className="min-h-[calc(100vh-56px)] md:grid md:min-h-[calc(100vh-64px)] md:grid-cols-[264px_minmax(0,1fr)] [@media(min-width:1340px)]:grid-cols-[264px_minmax(0,1fr)_240px]">
+        <DocsMobileNav navTree={navTree} currentUrl={currentUrl} />
+
         <aside
-          className="border-r border-border max-md:border-r-0 max-md:border-b"
+          className="hidden border-r border-border md:block"
           aria-label="Documentation navigation"
         >
-          <div className="sticky top-16 grid max-h-[calc(100vh-64px)] gap-6 overflow-auto py-4 pr-4 pb-10 pl-4 max-md:static max-md:max-h-none max-md:gap-3.5 max-md:overflow-visible max-md:px-3.5 max-md:py-4.5">
+          <div className="sticky top-16 grid max-h-[calc(100vh-64px)] gap-6 overflow-auto py-4 pr-4 pb-10 pl-4">
             <nav className="grid gap-1" aria-label="Docs pages">
               {navTree.nodes.map((node, index) => (
                 <DocsSidebarNode
@@ -67,7 +72,9 @@ export function DocsShell({
           </div>
         </aside>
 
-        <section className="mx-auto min-w-0 w-[min(100%,940px)] px-10 py-12 pb-[72px] max-md:w-[min(calc(100%_-_28px),940px)] max-md:px-0 max-md:py-9 max-md:pb-14">
+        <DocsMobileToc toc={toc} />
+
+        <section className="mx-auto w-[min(100%,940px)] min-w-0 px-10 py-12 pb-18 max-md:w-[min(calc(100%-28px),940px)] max-md:px-0 max-md:py-9 max-md:pb-14">
           {children}
         </section>
 
@@ -77,23 +84,10 @@ export function DocsShell({
             aria-label="Table of contents"
           >
             <div className="sticky top-16 max-h-[calc(100vh-64px)] overflow-auto px-6 py-12">
-              <p className="m-0 mb-3 text-xs font-bold uppercase text-muted-foreground">
+              <p className="m-0 mb-3 text-xs font-bold text-muted-foreground uppercase">
                 On this page
               </p>
-              <nav className="grid gap-1" aria-label="Page sections">
-                {toc.map((item) => (
-                  <TOCItem
-                    key={item.url}
-                    href={item.url}
-                    className="block rounded-md py-1.5 pr-2 text-sm font-semibold text-muted-foreground no-underline transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground active:scale-[0.96] data-[active=true]:text-accent-foreground"
-                    style={{
-                      paddingLeft: `${8 + Math.max(0, item.depth - 2) * 12}px`,
-                    }}
-                  >
-                    {item.title}
-                  </TOCItem>
-                ))}
-              </nav>
+              <DocsTocNav toc={toc} />
             </div>
           </aside>
         ) : null}
@@ -102,10 +96,165 @@ export function DocsShell({
   );
 }
 
-function DocsSidebarNode({ node, currentUrl }: { node: DocsNavNode; currentUrl: string }) {
+function DocsMobileNav({ navTree, currentUrl }: { navTree: DocsNavTree; currentUrl: string }) {
+  const { drawerId, isOpen, close } = useDocsSidebar();
+  const drawerTitleId = useId();
+
+  useEffect(() => {
+    close();
+  }, [currentUrl, close]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        close();
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, close]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 md:hidden"
+      style={{ pointerEvents: isOpen ? undefined : "none" }}
+    >
+      <div
+        className="absolute inset-0 bg-foreground/25 transition-opacity duration-300"
+        style={{ opacity: isOpen ? 1 : 0 }}
+        onClick={close}
+        aria-hidden="true"
+      />
+      <button
+        type="button"
+        className="absolute inset-y-0 right-0 left-[min(86vw,320px)] cursor-default"
+        aria-label="Close documentation navigation"
+        onClick={close}
+        tabIndex={isOpen ? undefined : -1}
+      />
+      <dialog
+        id={drawerId}
+        open
+        className="absolute inset-y-0 left-0 m-0 grid h-full max-h-none w-[min(86vw,320px)] max-w-none grid-rows-[auto_minmax(0,1fr)] border-0 border-r border-border bg-background p-0 text-foreground shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)]"
+        style={{ transform: isOpen ? "translateX(0)" : "translateX(-100%)" }}
+        aria-modal="true"
+        aria-labelledby={drawerTitleId}
+      >
+        <div className="flex min-h-14 items-center justify-between gap-3 border-b border-border px-4">
+          <div className="min-w-0">
+            <h2 id={drawerTitleId} className="m-0 truncate text-base font-bold">
+              UI Library
+            </h2>
+          </div>
+          <button
+            type="button"
+            className="inline-grid size-8 flex-none cursor-pointer place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            aria-label="Close documentation navigation"
+            onClick={close}
+          >
+            <XIcon size={18} aria-hidden="true" />
+          </button>
+        </div>
+        <nav className="grid content-start gap-1 overflow-auto p-3" aria-label="Docs pages">
+          {navTree.nodes.map((node, index) => (
+            <DocsSidebarNode
+              key={getNavNodeKey(node, index)}
+              node={node}
+              currentUrl={currentUrl}
+              onNavigate={close}
+            />
+          ))}
+        </nav>
+      </dialog>
+    </div>
+  );
+}
+
+function DocsMobileToc({ toc }: { toc: Array<DocsTocItem> }) {
+  if (toc.length === 0) return null;
+
+  const activeAnchor = useActiveAnchor();
+  const activeUrl = activeAnchor ? `#${activeAnchor}` : "";
+
+  return (
+    <div className="sticky top-14 z-10 border-b border-border bg-background/95 p-4 pb-3 backdrop-blur-md md:hidden">
+      <div className="relative">
+        <select
+          aria-label="On this page"
+          className="w-full cursor-pointer appearance-none rounded-md border border-border bg-card py-2.5 pr-9 pl-3 text-sm font-bold text-foreground"
+          value={activeUrl}
+          onChange={(e) => {
+            window.location.hash = e.target.value;
+          }}
+        >
+          {!activeUrl && (
+            <option value="" disabled>
+              On this page
+            </option>
+          )}
+          {toc.map((item) => (
+            <option key={item.url} value={item.url}>
+              {"—".repeat(Math.max(0, item.depth - 2)).concat(item.depth > 2 ? " " : "")}
+              {item.title}
+            </option>
+          ))}
+        </select>
+        <ChevronDownIcon
+          size={15}
+          className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
+      </div>
+    </div>
+  );
+}
+
+function DocsTocNav({
+  toc,
+  className = "grid gap-1",
+}: {
+  toc: Array<DocsTocItem>;
+  className?: string;
+}) {
+  return (
+    <nav className={className} aria-label="Page sections">
+      {toc.map((item) => (
+        <TOCItem
+          key={item.url}
+          href={item.url}
+          className="block rounded-md py-1.5 pr-2 text-sm font-semibold text-muted-foreground no-underline transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground active:scale-[0.96] data-[active=true]:text-accent-foreground"
+          style={{
+            paddingLeft: `${8 + Math.max(0, item.depth - 2) * 12}px`,
+          }}
+        >
+          {item.title}
+        </TOCItem>
+      ))}
+    </nav>
+  );
+}
+
+function DocsSidebarNode({
+  node,
+  currentUrl,
+  onNavigate,
+}: {
+  node: DocsNavNode;
+  currentUrl: string;
+  onNavigate?: () => void;
+}) {
   if (node.type === "separator") {
     return node.title ? (
-      <p className="m-0 px-2.5 text-xs font-bold uppercase text-muted-foreground">{node.title}</p>
+      <p className="m-0 px-2.5 text-xs font-bold text-muted-foreground uppercase">{node.title}</p>
     ) : (
       <div className="h-px bg-border" aria-hidden="true" />
     );
@@ -115,26 +264,26 @@ function DocsSidebarNode({ node, currentUrl }: { node: DocsNavNode; currentUrl: 
     const title = node.url ? (
       <a
         href={node.url}
-        className="flex min-h-9 items-center rounded-md px-2.5 text-xs font-bold uppercase text-muted-foreground transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground active:scale-[0.96] data-[active=true]:bg-accent data-[active=true]:text-accent-foreground"
+        className="flex min-h-9 items-center justify-between rounded-md px-2.5 text-xs font-bold text-muted-foreground uppercase transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground active:scale-[0.96] data-[active=true]:bg-accent data-[active=true]:text-accent-foreground"
         data-active={normalizeUrl(node.url) === normalizeUrl(currentUrl)}
+        onClick={onNavigate}
       >
         {node.title}
       </a>
     ) : (
-      <p className="m-0 px-2.5 py-1 text-xs font-bold uppercase text-muted-foreground/70">
-        {node.title}
-      </p>
+      <p className="m-0 px-2.5 pt-1 text-sm font-bold text-muted-foreground/50">{node.title}</p>
     );
 
     return (
       <div className="grid gap-1">
         {title}
-        <div className="grid gap-0.5 max-md:flex max-md:gap-1.5 max-md:overflow-x-auto max-md:pb-0.5">
+        <div className="grid gap-0.5">
           {node.children.map((child, index) => (
             <DocsSidebarNode
               key={getNavNodeKey(child, index)}
               node={child}
               currentUrl={currentUrl}
+              onNavigate={onNavigate}
             />
           ))}
         </div>
@@ -145,8 +294,9 @@ function DocsSidebarNode({ node, currentUrl }: { node: DocsNavNode; currentUrl: 
   return (
     <a
       href={node.url}
-      className="flex min-h-9 items-center rounded-md px-2.5 text-sm font-semibold text-muted-foreground transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground active:scale-[0.96] data-[active=true]:bg-accent data-[active=true]:text-accent-foreground max-md:flex-none"
+      className="flex min-h-9 items-center rounded-md px-2.5 text-sm text-foreground hover:bg-accent data-[active=true]:bg-accent data-[active=true]:font-semibold"
       data-active={normalizeUrl(node.url) === normalizeUrl(currentUrl)}
+      onClick={onNavigate}
     >
       {node.title}
     </a>

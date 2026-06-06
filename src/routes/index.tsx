@@ -14,20 +14,20 @@ function HomePage() {
   return (
     <main className="mx-auto w-[min(1120px,calc(100vw_-_40px))] py-14 max-md:w-[min(calc(100%_-_28px),940px)] max-md:pt-9">
       <section
-        className="grid items-stretch gap-8 [grid-template-columns:minmax(0,1.2fr)_minmax(280px,0.8fr)] max-md:grid-cols-1"
+        className="grid [grid-template-columns:minmax(0,1.2fr)_minmax(280px,0.8fr)] items-stretch gap-8 max-md:grid-cols-1"
         aria-labelledby="overview-title"
       >
         <div className="flex min-h-[460px] flex-col justify-center py-8 max-md:min-h-0">
-          <p className="m-0 mb-3 text-xs font-bold uppercase text-muted-foreground">
+          <p className="m-0 mb-3 text-xs font-bold text-muted-foreground uppercase">
             Documentation template
           </p>
           <h1
             id="overview-title"
-            className="m-0 max-w-[780px] text-balance text-[clamp(2.25rem,6vw,5.4rem)] leading-[0.96] max-md:text-4xl max-md:leading-[1.02]"
+            className="m-0 max-w-[780px] text-[clamp(2.25rem,6vw,5.4rem)] leading-[0.96] text-balance max-md:text-4xl max-md:leading-[1.02]"
           >
             Component docs with previews and registry output.
           </h1>
-          <p className="mt-5 max-w-[660px] text-pretty text-[1.06rem] leading-7 text-muted-foreground">
+          <p className="mt-5 max-w-[660px] text-[1.06rem] leading-7 text-pretty text-muted-foreground">
             A ready app shell for component libraries: MDX content, preview and source views, props
             documentation, command snippets, and shadcn registry generation.
           </p>
@@ -73,7 +73,7 @@ function Feature({ icon, title, text }: { icon: ReactNode; title: string; text: 
       </div>
       <div>
         <h2 className="m-0 text-base">{title}</h2>
-        <p className="mt-1.5 text-pretty text-[0.92rem] leading-6 text-muted-foreground">{text}</p>
+        <p className="mt-1.5 text-[0.92rem] leading-6 text-pretty text-muted-foreground">{text}</p>
       </div>
     </div>
   );

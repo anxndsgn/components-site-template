@@ -1,4 +1,8 @@
 @import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
 @source "../../content/**/*.{md,mdx}";
 @source "../../registry/**/*.{ts,tsx}";
 
@@ -227,11 +231,5 @@
     :root:not([data-theme]) .shiki-code span {
       color: var(--shiki-dark, var(--shiki-light, inherit));
     }
-  }
-
-  .docs-preview-grid {
-    background-color: color-mix(in oklab, var(--muted) 55%, transparent);
-    background-image: radial-gradient(var(--border) 1px, transparent 1px);
-    background-size: 18px 18px;
   }
 }

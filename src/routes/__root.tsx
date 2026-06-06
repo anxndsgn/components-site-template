@@ -1,12 +1,10 @@
 /// <reference types="vite/client" />
 import { HeadContent, Link, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { ThemeToggle } from "../components/site/theme-toggle";
+import { DocsSidebarProvider } from "../components/site/docs-sidebar-context";
+import { SiteHeader } from "../components/site/site-header";
 import { themeStorageKey } from "../lib/theme";
 import appCss from "../styles/app.css?url";
-
-const navLinkClass =
-  "inline-flex min-h-10 items-center rounded-md px-3 text-sm font-semibold text-muted-foreground transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground active:scale-[0.96] data-[active=true]:bg-accent data-[active=true]:text-accent-foreground";
 
 const buttonLinkClass =
   "inline-flex min-h-[42px] items-center justify-center gap-2 rounded-md bg-primary px-3.5 text-sm font-bold text-primary-foreground transition-[background-color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-primary/90 active:scale-[0.96]";
@@ -61,44 +59,12 @@ function RootDocument({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body>
-        <div className="min-h-screen">
-          <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-6 border-b border-border bg-background/90 px-8 backdrop-blur-md max-md:min-h-0 max-md:flex-col max-md:items-start max-md:px-5 max-md:py-3.5">
-            <Link
-              to="/"
-              className="inline-flex min-h-10 items-center gap-2.5 text-[0.95rem] font-bold"
-              activeOptions={{ exact: true }}
-            >
-              <span
-                className="h-5 w-5 rounded-full border-4 border-border bg-primary"
-                aria-hidden="true"
-              />
-              <span>Components</span>
-            </Link>
-            <div className="flex items-center gap-2 max-md:w-full">
-              <nav
-                className="flex min-w-0 flex-1 items-center gap-1.5 max-md:overflow-x-auto max-md:pb-0.5"
-                aria-label="Primary"
-              >
-                <Link
-                  to="/"
-                  activeOptions={{ exact: true }}
-                  activeProps={{ "data-active": true }}
-                  className={navLinkClass}
-                >
-                  Overview
-                </Link>
-                <Link to="/docs" activeProps={{ "data-active": true }} className={navLinkClass}>
-                  Docs
-                </Link>
-                <a className={navLinkClass} href="/r/button.json">
-                  Registry
-                </a>
-              </nav>
-              <ThemeToggle />
-            </div>
-          </header>
-          {children}
-        </div>
+        <DocsSidebarProvider>
+          <div className="min-h-screen">
+            <SiteHeader />
+            {children}
+          </div>
+        </DocsSidebarProvider>
         <Scripts />
       </body>
     </html>
@@ -109,11 +75,11 @@ function NotFound() {
   return (
     <main className="mx-auto w-[min(1120px,calc(100vw_-_40px))] py-14 max-md:w-[min(calc(100%_-_28px),940px)] max-md:pt-9">
       <div className="grid min-h-[420px] content-center gap-4">
-        <p className="m-0 text-xs font-bold uppercase text-muted-foreground">404</p>
-        <h1 className="m-0 max-w-[780px] text-balance text-[clamp(2.25rem,6vw,5.4rem)] leading-[0.96] max-md:text-4xl max-md:leading-[1.02]">
+        <p className="m-0 text-xs font-bold text-muted-foreground uppercase">404</p>
+        <h1 className="m-0 max-w-[780px] text-[clamp(2.25rem,6vw,5.4rem)] leading-[0.96] text-balance max-md:text-4xl max-md:leading-[1.02]">
           Page not found
         </h1>
-        <p className="m-0 max-w-[660px] text-pretty text-[1.06rem] leading-7 text-muted-foreground">
+        <p className="m-0 max-w-[660px] text-[1.06rem] leading-7 text-pretty text-muted-foreground">
           The route does not exist in this documentation template.
         </p>
         <Link to="/docs" className={buttonLinkClass}>

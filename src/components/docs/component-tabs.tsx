@@ -21,12 +21,13 @@ export function ComponentTabs({
   const slots = useMemo(() => resolveSlots(children, preview, source), [children, preview, source]);
 
   return (
-    <section className="relative overflow-hidden rounded-lg border border-border bg-card">
+    <section className="relative overflow-hidden">
       <input
         id={previewId}
         className="peer/preview sr-only"
         type="radio"
         name={id}
+        aria-label="Preview"
         defaultChecked={defaultValue === "preview"}
       />
       <input
@@ -34,26 +35,25 @@ export function ComponentTabs({
         className="peer/source sr-only"
         type="radio"
         name={id}
+        aria-label="Source"
         defaultChecked={defaultValue === "source"}
       />
-      <div className="flex gap-1 overflow-x-auto border-b border-border p-2" role="radiogroup">
+      <div className="mb-2 flex gap-1 overflow-x-auto" role="radiogroup">
         <label
-          className="inline-flex min-h-10 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-3 text-sm font-bold text-muted-foreground transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground active:scale-[0.96] peer-checked/preview:bg-accent peer-checked/preview:text-accent-foreground"
+          className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-bold text-muted-foreground transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] select-none peer-checked/preview:bg-accent peer-checked/preview:text-accent-foreground hover:bg-accent hover:text-accent-foreground"
           htmlFor={previewId}
         >
-          <Eye size={15} aria-hidden="true" />
           Preview
         </label>
         <label
-          className="inline-flex min-h-10 cursor-pointer select-none items-center justify-center gap-2 rounded-md px-3 text-sm font-bold text-muted-foreground transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground active:scale-[0.96] peer-checked/source:bg-accent peer-checked/source:text-accent-foreground"
+          className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-bold text-muted-foreground transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] select-none peer-checked/source:bg-accent peer-checked/source:text-accent-foreground hover:bg-accent hover:text-accent-foreground"
           htmlFor={sourceId}
         >
-          <FileCode2 size={15} aria-hidden="true" />
           Source
         </label>
       </div>
-      <div className="block min-h-[260px] peer-checked/source:hidden">{slots.preview}</div>
-      <div className="hidden min-h-[260px] peer-checked/source:block [&>figure]:rounded-none [&>figure]:border-0">
+      <div className="block min-h-65 peer-checked/source:hidden">{slots.preview}</div>
+      <div className="hidden min-h-65 peer-checked/source:block [&>figure]:border-0">
         {slots.source}
       </div>
     </section>
