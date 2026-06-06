@@ -1,6 +1,17 @@
+import { Drawer } from "@base-ui/react/drawer";
 import { AnchorProvider, TOCItem, useActiveAnchor } from "fumadocs-core/toc";
-import { ChevronDownIcon, XIcon } from "lucide-react";
-import { useEffect, useId, type ReactNode } from "react";
+import { XIcon } from "lucide-react";
+import { useEffect, type ReactNode } from "react";
+import { buttonVariants } from "registry/default/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+} from "registry/default/ui/select";
+import { ScrollArea } from "registry/default/ui/scroll-area";
 
 import { useDocsSidebar } from "./docs-sidebar-context";
 
@@ -52,43 +63,49 @@ export function DocsShell({
 }) {
   return (
     <AnchorProvider toc={toc} single>
-      <main className="min-h-[calc(100vh-56px)] md:grid md:min-h-[calc(100vh-64px)] md:grid-cols-[264px_minmax(0,1fr)] [@media(min-width:1340px)]:grid-cols-[264px_minmax(0,1fr)_240px]">
+      <main className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden md:grid-cols-[264px_minmax(0,1fr)] md:grid-rows-1 [@media(min-width:1340px)]:grid-cols-[264px_minmax(0,1fr)_240px]">
         <DocsMobileNav navTree={navTree} currentUrl={currentUrl} />
 
         <aside
-          className="hidden border-r border-border md:block"
+          className="hidden min-h-0 border-r border-border md:col-start-1 md:row-start-1 md:block"
           aria-label="Documentation navigation"
         >
-          <div className="sticky top-16 grid max-h-[calc(100vh-64px)] gap-6 overflow-auto py-4 pr-4 pb-10 pl-4">
-            <nav className="grid gap-1" aria-label="Docs pages">
-              {navTree.nodes.map((node, index) => (
-                <DocsSidebarNode
-                  key={getNavNodeKey(node, index)}
-                  node={node}
-                  currentUrl={currentUrl}
-                />
-              ))}
-            </nav>
-          </div>
+          <ScrollArea className="h-full min-h-0">
+            <div className="grid gap-6 py-4 pr-4 pb-10 pl-4">
+              <nav className="grid gap-1" aria-label="Docs pages">
+                {navTree.nodes.map((node, index) => (
+                  <DocsSidebarNode
+                    key={getNavNodeKey(node, index)}
+                    node={node}
+                    currentUrl={currentUrl}
+                  />
+                ))}
+              </nav>
+            </div>
+          </ScrollArea>
         </aside>
 
         <DocsMobileToc toc={toc} />
 
-        <section className="mx-auto w-[min(100%,940px)] min-w-0 px-10 py-12 pb-18 max-md:w-[min(calc(100%-28px),940px)] max-md:px-0 max-md:py-9 max-md:pb-14">
-          {children}
-        </section>
+        <div className="row-start-2 min-h-0 min-w-0 overflow-auto md:col-start-2 md:row-start-1">
+          <section className="mx-auto w-[min(100%,940px)] min-w-0 px-10 py-12 pb-18 max-md:w-[min(calc(100%-28px),940px)] max-md:px-0 max-md:py-9 max-md:pb-14">
+            {children}
+          </section>
+        </div>
 
         {toc.length > 0 ? (
           <aside
-            className="hidden border-l border-border [@media(min-width:1340px)]:block"
+            className="hidden min-h-0 border-l border-border [@media(min-width:1340px)]:col-start-3 [@media(min-width:1340px)]:row-start-1 [@media(min-width:1340px)]:block"
             aria-label="Table of contents"
           >
-            <div className="sticky top-16 max-h-[calc(100vh-64px)] overflow-auto px-6 py-12">
-              <p className="m-0 mb-3 text-xs font-bold text-muted-foreground uppercase">
-                On this page
-              </p>
-              <DocsTocNav toc={toc} />
-            </div>
+            <ScrollArea className="h-full min-h-0">
+              <div className="p-4">
+                <p className="m-0 mb-3 px-2 text-xs font-bold text-muted-foreground uppercase">
+                  On this page
+                </p>
+                <DocsTocNav toc={toc} />
+              </div>
+            </ScrollArea>
           </aside>
         ) : null}
       </main>
@@ -97,123 +114,89 @@ export function DocsShell({
 }
 
 function DocsMobileNav({ navTree, currentUrl }: { navTree: DocsNavTree; currentUrl: string }) {
-  const { drawerId, isOpen, close } = useDocsSidebar();
-  const drawerTitleId = useId();
+  const { drawerId, isOpen, setOpen, close } = useDocsSidebar();
 
   useEffect(() => {
     close();
   }, [currentUrl, close]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const previousOverflow = document.body.style.overflow;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        close();
-      }
-    };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, close]);
-
   return (
-    <div
-      className="fixed inset-0 z-50 md:hidden"
-      style={{ pointerEvents: isOpen ? undefined : "none" }}
-    >
-      <div
-        className="absolute inset-0 bg-foreground/25 transition-opacity duration-300"
-        style={{ opacity: isOpen ? 1 : 0 }}
-        onClick={close}
-        aria-hidden="true"
-      />
-      <button
-        type="button"
-        className="absolute inset-y-0 right-0 left-[min(86vw,320px)] cursor-default"
-        aria-label="Close documentation navigation"
-        onClick={close}
-        tabIndex={isOpen ? undefined : -1}
-      />
-      <dialog
-        id={drawerId}
-        open
-        className="absolute inset-y-0 left-0 m-0 grid h-full max-h-none w-[min(86vw,320px)] max-w-none grid-rows-[auto_minmax(0,1fr)] border-0 border-r border-border bg-background p-0 text-foreground shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)]"
-        style={{ transform: isOpen ? "translateX(0)" : "translateX(-100%)" }}
-        aria-modal="true"
-        aria-labelledby={drawerTitleId}
-      >
-        <div className="flex min-h-14 items-center justify-between gap-3 border-b border-border px-4">
-          <div className="min-w-0">
-            <h2 id={drawerTitleId} className="m-0 truncate text-base font-bold">
-              UI Library
-            </h2>
-          </div>
-          <button
-            type="button"
-            className="inline-grid size-8 flex-none cursor-pointer place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-            aria-label="Close documentation navigation"
-            onClick={close}
+    <Drawer.Root open={isOpen} onOpenChange={setOpen} swipeDirection="left">
+      <Drawer.Portal>
+        <Drawer.Backdrop className="fixed inset-0 z-50 min-h-dvh bg-foreground opacity-[calc(var(--backdrop-opacity)*(1-var(--drawer-swipe-progress)))] transition-opacity duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] [--backdrop-opacity:0.25] data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-starting-style:opacity-0 data-swiping:duration-0 md:hidden" />
+        <Drawer.Viewport className="fixed inset-0 z-50 flex items-stretch justify-start p-(--viewport-padding) [--viewport-padding:0px] md:hidden">
+          <Drawer.Popup
+            id={drawerId}
+            className="grid h-full w-[min(86vw,320px)] [transform:translateX(var(--drawer-swipe-movement-x))] touch-auto grid-rows-[auto_minmax(0,1fr)] overflow-hidden overscroll-contain border-r border-border bg-background text-foreground shadow-2xl transition-transform duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-ending-style:[transform:translateX(calc(-100%-var(--viewport-padding)-2px))] data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-starting-style:[transform:translateX(calc(-100%-var(--viewport-padding)-2px))] data-swiping:duration-0 data-swiping:select-none"
           >
-            <XIcon size={18} aria-hidden="true" />
-          </button>
-        </div>
-        <nav className="grid content-start gap-1 overflow-auto p-3" aria-label="Docs pages">
-          {navTree.nodes.map((node, index) => (
-            <DocsSidebarNode
-              key={getNavNodeKey(node, index)}
-              node={node}
-              currentUrl={currentUrl}
-              onNavigate={close}
-            />
-          ))}
-        </nav>
-      </dialog>
-    </div>
+            <Drawer.Content className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)]">
+              <div className="flex min-h-14 items-center justify-between gap-3 border-b border-border px-4">
+                <div className="min-w-0">
+                  <Drawer.Title className="m-0 truncate text-base font-bold">
+                    UI Library
+                  </Drawer.Title>
+                </div>
+                <Drawer.Close
+                  className={buttonVariants({
+                    variant: "ghost",
+                    size: "icon",
+                    className: "flex-none text-muted-foreground",
+                  })}
+                  aria-label="Close documentation navigation"
+                >
+                  <XIcon size={18} aria-hidden="true" />
+                </Drawer.Close>
+              </div>
+              <nav className="grid content-start gap-1 overflow-auto p-3" aria-label="Docs pages">
+                {navTree.nodes.map((node, index) => (
+                  <DocsSidebarNode
+                    key={getNavNodeKey(node, index)}
+                    node={node}
+                    currentUrl={currentUrl}
+                    onNavigate={close}
+                  />
+                ))}
+              </nav>
+            </Drawer.Content>
+          </Drawer.Popup>
+        </Drawer.Viewport>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 }
 
 function DocsMobileToc({ toc }: { toc: Array<DocsTocItem> }) {
+  const activeAnchor = useActiveAnchor();
+
   if (toc.length === 0) return null;
 
-  const activeAnchor = useActiveAnchor();
   const activeUrl = activeAnchor ? `#${activeAnchor}` : "";
+  const items = toc.map((item) => ({ label: item.title, value: item.url }));
 
   return (
-    <div className="sticky top-14 z-10 border-b border-border bg-background/95 p-4 pb-3 backdrop-blur-md md:hidden">
-      <div className="relative">
-        <select
-          aria-label="On this page"
-          className="w-full cursor-pointer appearance-none rounded-md border border-border bg-card py-2.5 pr-9 pl-3 text-sm font-bold text-foreground"
-          value={activeUrl}
-          onChange={(e) => {
-            window.location.hash = e.target.value;
-          }}
-        >
-          {!activeUrl && (
-            <option value="" disabled>
-              On this page
-            </option>
-          )}
-          {toc.map((item) => (
-            <option key={item.url} value={item.url}>
-              {"—".repeat(Math.max(0, item.depth - 2)).concat(item.depth > 2 ? " " : "")}
-              {item.title}
-            </option>
-          ))}
-        </select>
-        <ChevronDownIcon
-          size={15}
-          className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
-          aria-hidden="true"
-        />
-      </div>
+    <div className="z-10 border-b border-border bg-background/95 p-4 pb-3 backdrop-blur-md md:hidden">
+      <Select
+        items={items}
+        value={activeUrl || null}
+        onValueChange={(value) => {
+          if (typeof value === "string") {
+            window.location.hash = value;
+          }
+        }}
+      >
+        <SelectTrigger aria-label="On this page" className="w-full">
+          <SelectValue placeholder="On this page" className="min-w-0 flex-1 truncate" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {toc.map((item) => (
+              <SelectItem key={item.url} value={item.url}>
+                <span className="truncate">{item.title}</span>
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     </div>
   );
 }
@@ -231,7 +214,7 @@ function DocsTocNav({
         <TOCItem
           key={item.url}
           href={item.url}
-          className="block rounded-md py-1.5 pr-2 text-sm font-semibold text-muted-foreground no-underline transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground active:scale-[0.96] data-[active=true]:text-accent-foreground"
+          className="block rounded-md p-2 text-sm font-semibold text-muted-foreground no-underline transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground data-[active=true]:text-accent-foreground"
           style={{
             paddingLeft: `${8 + Math.max(0, item.depth - 2) * 12}px`,
           }}
@@ -271,7 +254,7 @@ function DocsSidebarNode({
         {node.title}
       </a>
     ) : (
-      <p className="m-0 px-2.5 pt-1 text-sm font-bold text-muted-foreground/50">{node.title}</p>
+      <p className="m-0 px-2.5 pt-2 text-xs font-semibold text-muted-foreground/60">{node.title}</p>
     );
 
     return (
@@ -294,7 +277,7 @@ function DocsSidebarNode({
   return (
     <a
       href={node.url}
-      className="flex min-h-9 items-center rounded-md px-2.5 text-sm text-foreground hover:bg-accent data-[active=true]:bg-accent data-[active=true]:font-semibold"
+      className="flex min-h-9 items-center rounded-md px-2.5 text-sm font-medium text-muted-foreground hover:bg-accent data-[active=true]:bg-accent data-[active=true]:font-semibold data-[active=true]:text-foreground"
       data-active={normalizeUrl(node.url) === normalizeUrl(currentUrl)}
       onClick={onNavigate}
     >

@@ -3,7 +3,7 @@ import { HeadContent, Link, Outlet, Scripts, createRootRoute } from "@tanstack/r
 import type { ReactNode } from "react";
 import { DocsSidebarProvider } from "../components/site/docs-sidebar-context";
 import { SiteHeader } from "../components/site/site-header";
-import { themeStorageKey } from "../lib/theme";
+import { legacyThemeStorageKey, uiStorageKey } from "../lib/theme";
 import appCss from "../styles/app.css?url";
 
 const buttonLinkClass =
@@ -12,7 +12,12 @@ const buttonLinkClass =
 const themeInitScript = `
 (() => {
   try {
-    const storedTheme = window.localStorage.getItem('${themeStorageKey}')
+    const storedUi = window.localStorage.getItem('${uiStorageKey}')
+    const parsedUi = storedUi ? JSON.parse(storedUi) : null
+    const persistedTheme = parsedUi?.state?.theme
+    const legacyTheme = window.localStorage.getItem('${legacyThemeStorageKey}')
+    const storedTheme =
+      persistedTheme === 'light' || persistedTheme === 'dark' ? persistedTheme : legacyTheme
     const theme =
       storedTheme === 'light' || storedTheme === 'dark'
         ? storedTheme
@@ -60,9 +65,9 @@ function RootDocument({ children }: { children: ReactNode }) {
       </head>
       <body>
         <DocsSidebarProvider>
-          <div className="min-h-screen">
+          <div className="grid h-dvh grid-rows-[auto_minmax(0,1fr)]">
             <SiteHeader />
-            {children}
+            <div className="min-h-0">{children}</div>
           </div>
         </DocsSidebarProvider>
         <Scripts />

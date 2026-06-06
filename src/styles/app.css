@@ -1,8 +1,5 @@
 @import "tailwindcss";
 
-html {
-  scroll-behavior: smooth;
-}
 @source "../../content/**/*.{md,mdx}";
 @source "../../registry/**/*.{ts,tsx}";
 
@@ -185,6 +182,7 @@ html {
   * {
     border-color: var(--border);
     outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+    scroll-behavior: smooth;
   }
 
   html {

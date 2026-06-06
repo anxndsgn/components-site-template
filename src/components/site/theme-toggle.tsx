@@ -1,52 +1,65 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
-import { themeStorageKey, type ResolvedTheme } from "../../lib/theme";
+import { useEffect } from "react";
+import { Button } from "registry/default/ui/button";
+import { applyTheme, getAppliedTheme, getSystemTheme } from "../../lib/theme";
+import { useUiStore } from "../../lib/ui-store";
 import { cn } from "../../lib/utils";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<ResolvedTheme>("light");
-  const isDark = theme === "dark";
+  const themePreference = useUiStore((state) => state.theme);
+  const resolvedTheme = useUiStore((state) => state.resolvedTheme);
+  const setTheme = useUiStore((state) => state.setTheme);
+  const setResolvedTheme = useUiStore((state) => state.setResolvedTheme);
+  const isDark = resolvedTheme === "dark";
   const label = `Switch to ${isDark ? "light" : "dark"} mode`;
 
   useEffect(() => {
-    const initialTheme = getCurrentTheme();
+    const initialTheme = getAppliedTheme() ?? getSystemTheme();
 
-    setTheme(initialTheme);
+    applyTheme(initialTheme);
+    setResolvedTheme(initialTheme);
 
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const handleSystemThemeChange = () => {
-      if (getStoredTheme()) return;
+      if (useUiStore.getState().theme) return;
 
       const nextTheme = media.matches ? "dark" : "light";
+
       applyTheme(nextTheme);
-      setTheme(nextTheme);
+      setResolvedTheme(nextTheme);
     };
 
     media.addEventListener("change", handleSystemThemeChange);
 
     return () => media.removeEventListener("change", handleSystemThemeChange);
-  }, []);
+  }, [setResolvedTheme]);
+
+  useEffect(() => {
+    if (!themePreference) return;
+
+    applyTheme(themePreference);
+  }, [themePreference]);
 
   return (
-    <button
+    <Button
       type="button"
-      className="relative inline-grid size-8 flex-none cursor-pointer place-items-center rounded-md bg-card text-muted-foreground hover:bg-accent"
+      variant="ghost"
+      size="icon"
+      className="relative"
       aria-label={label}
       aria-pressed={isDark}
       title={label}
       onClick={() => {
         const nextTheme = isDark ? "light" : "dark";
 
-        storeTheme(nextTheme);
-        applyTheme(nextTheme);
         setTheme(nextTheme);
       }}
     >
       <Sun
         className={cn(
-          "absolute transition-[opacity,rotate,scale] duration-200 ease-[cubic-bezier(0.2,0,0,1)]",
+          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-[opacity,rotate,scale] duration-200 ease-[cubic-bezier(0.2,0,0,1)]",
           !isDark && "scale-50 rotate-45 opacity-0",
         )}
         size={17}
@@ -54,46 +67,12 @@ export function ThemeToggle() {
       />
       <Moon
         className={cn(
-          "absolute transition-[opacity,rotate,scale] duration-200 ease-[cubic-bezier(0.2,0,0,1)]",
+          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-[opacity,rotate,scale] duration-200 ease-[cubic-bezier(0.2,0,0,1)]",
           isDark && "scale-50 -rotate-45 opacity-0",
         )}
         size={17}
         aria-hidden="true"
       />
-    </button>
+    </Button>
   );
-}
-
-function getCurrentTheme(): ResolvedTheme {
-  const appliedTheme = document.documentElement.dataset.theme;
-
-  if (appliedTheme === "light" || appliedTheme === "dark") {
-    return appliedTheme;
-  }
-
-  return getStoredTheme() ?? getSystemTheme();
-}
-
-function getStoredTheme(): ResolvedTheme | null {
-  try {
-    const storedTheme = window.localStorage.getItem(themeStorageKey);
-
-    return storedTheme === "light" || storedTheme === "dark" ? storedTheme : null;
-  } catch {
-    return null;
-  }
-}
-
-function getSystemTheme(): ResolvedTheme {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-function applyTheme(theme: ResolvedTheme) {
-  document.documentElement.dataset.theme = theme;
-}
-
-function storeTheme(theme: ResolvedTheme) {
-  try {
-    window.localStorage.setItem(themeStorageKey, theme);
-  } catch {}
 }
