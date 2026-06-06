@@ -214,9 +214,9 @@ function DocsTocNav({
         <TOCItem
           key={item.url}
           href={item.url}
-          className="block rounded-md p-2 text-sm font-semibold text-muted-foreground no-underline transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-accent hover:text-accent-foreground data-[active=true]:text-accent-foreground"
+          className="block rounded-md p-2 text-sm text-muted-foreground no-underline hover:bg-accent hover:text-accent-foreground data-[active=true]:font-semibold data-[active=true]:text-accent-foreground"
           style={{
-            paddingLeft: `${8 + Math.max(0, item.depth - 2) * 12}px`,
+            paddingLeft: `${8 + Math.max(0, item.depth - 2) * 8}px`,
           }}
         >
           {item.title}
