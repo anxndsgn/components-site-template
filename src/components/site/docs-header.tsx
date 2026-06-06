@@ -12,7 +12,7 @@ import { Separator } from "registry/default/ui/separator";
 import { useDocsSidebar } from "./docs-sidebar-context";
 import { ThemeToggle } from "./theme-toggle";
 
-export function SiteHeader() {
+export function DocsHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-md">
       <div className="flex h-14 items-center justify-between gap-4 px-4 max-md:h-14 max-md:gap-2.5 max-md:px-3.5">

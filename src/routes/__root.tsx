@@ -2,7 +2,6 @@
 import { HeadContent, Link, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { DocsSidebarProvider } from "../components/site/docs-sidebar-context";
-import { SiteHeader } from "../components/site/site-header";
 import { legacyThemeStorageKey, uiStorageKey } from "../lib/theme";
 import appCss from "../styles/app.css?url";
 
@@ -65,9 +64,8 @@ function RootDocument({ children }: { children: ReactNode }) {
       </head>
       <body>
         <DocsSidebarProvider>
-          <div className="grid h-dvh grid-rows-[auto_minmax(0,1fr)]">
-            <SiteHeader />
-            <div className="min-h-0">{children}</div>
+          <div className="h-dvh min-h-0">
+            {children}
           </div>
         </DocsSidebarProvider>
         <Scripts />

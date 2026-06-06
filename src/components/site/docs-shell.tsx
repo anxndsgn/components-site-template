@@ -14,6 +14,7 @@ import {
 import { ScrollArea } from "registry/default/ui/scroll-area";
 
 import { useDocsSidebar } from "./docs-sidebar-context";
+import { DocsHeader } from "./docs-header";
 
 export type DocsNavItem = {
   title: string;
@@ -63,8 +64,10 @@ export function DocsShell({
 }) {
   return (
     <AnchorProvider toc={toc} single>
-      <main className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden md:grid-cols-[264px_minmax(0,1fr)] md:grid-rows-1 [@media(min-width:1340px)]:grid-cols-[264px_minmax(0,1fr)_240px]">
-        <DocsMobileNav navTree={navTree} currentUrl={currentUrl} />
+      <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden">
+        <DocsHeader />
+        <main className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden md:grid-cols-[264px_minmax(0,1fr)] md:grid-rows-1 [@media(min-width:1340px)]:grid-cols-[264px_minmax(0,1fr)_240px]">
+          <DocsMobileNav navTree={navTree} currentUrl={currentUrl} />
 
         <aside
           className="hidden min-h-0 border-r border-border md:col-start-1 md:row-start-1 md:block"
@@ -109,6 +112,7 @@ export function DocsShell({
           </aside>
         ) : null}
       </main>
+      </div>
     </AnchorProvider>
   );
 }
